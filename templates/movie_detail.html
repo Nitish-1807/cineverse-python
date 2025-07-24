@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/MovieDetail.css') }}">
+<!-- ✅ AOS Library -->
+<link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet" />
+
+<div class="movie-detail-container">
+
+  <!-- Poster + Overview -->
+  <div class="movie-top" data-aos="fade-up">
+    <img class="poster" src="https://image.tmdb.org/t/p/w500{{ movie.poster_path }}" alt="{{ movie.title or movie.name }}" />
+    <div class="details">
+      <h1>{{ movie.title or movie.name }}</h1>
+      <p><strong>Release Date:</strong> {{ movie.release_date or "N/A" }}</p>
+      <p><strong>Rating:</strong> ⭐ {{ movie.vote_average or "N/A" }}</p>
+      <p><strong>Language:</strong> {{ language_map.get(movie.original_language, movie.original_language) }}</p>
+      <p><strong>Overview:</strong> {{ movie.overview or "No overview available." }}</p>
+
+      {% if providers %}
+        <h3>Available on</h3>
+        <a href="{{ provider_link }}" target="_blank">
+          <div class="provider-list">
+            {% for provider in providers %}
+              <div class="provider-item">
+                <img src="https://image.tmdb.org/t/p/w92{{ provider.logo_path }}" alt="{{ provider.provider_name }}" />
+                <p class="provider-name-text">{{ provider.provider_name }}</p>
+              </div>
+            {% endfor %}
+          </div>
+        </a>
+      {% endif %}
+    </div>
+  </div>
+<!-- 🔍 Deep‑Dive trigger  -->
+<button id="deepDiveBtn" class="trailer-button">🧠 Movie Deep Dive</button>
+<div id="deepDiveContent"></div>
+
+  <!-- Trailer -->
+  {% if trailer_key %}
+    <div class="trailer-section" data-aos="zoom-in">
+      <h3>🎬 Trailer</h3>
+      <div class="trailer-embed">
+        <iframe
+          src="https://www.youtube.com/embed/{{ trailer_key }}"
+          title="YouTube Trailer"
+          frameborder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowfullscreen>
+        </iframe>
+      </div>
+  {% else %}
+    <p>No direct trailer available.</p>
+  {% endif %}
+
+  <a href="https://www.youtube.com/results?search_query={{ (movie.title or movie.name) | urlencode }} {{ language_map.get(movie.original_language, movie.original_language) }} trailer"
+    target="_blank" rel="noopener noreferrer">
+    <button class="trailer-button">Search on YouTube</button>
+  </a>
+
+  <!-- Crew -->
+  <h3 data-aos="fade-up">🎬 Key Crew</h3>
+  <div class="cast-list">
+    {% for member in crew %}
+      <a href="{{ url_for('person_detail', person_id=member.id) }}" class="cast-card" data-aos="fade-up">
+        <img src="{{ 'https://image.tmdb.org/t/p/w185' + member.profile_path if member.profile_path else 'https://via.placeholder.com/100x150?text=No+Image' }}" alt="{{ member.name }}">
+        <p class="cast-name">{{ member.name }}</p>
+        <p class="cast-character">{{ member.job }}</p>
+      </a>
+    {% endfor %}
+  </div>
+
+  <!-- Cast -->
+  <h3 data-aos="fade-up">🎭 Cast</h3>
+  <div class="cast-list">
+    {% for member in movie.credits.cast[:18] %}
+      <a href="{{ url_for('person_detail', person_id=member.id) }}" class="cast-card" data-aos="fade-up">
+        <img src="{{ 'https://image.tmdb.org/t/p/w185' + member.profile_path if member.profile_path else 'https://via.placeholder.com/100x150?text=No+Image' }}" alt="{{ member.name }}">
+        <p class="cast-name">{{ member.name }}</p>
+        <p class="cast-character">as {{ member.character }}</p>
+      </a>
+    {% endfor %}
+  </div>
+
+  <!-- Reviews -->
+  {% if reviews %}
+    <h3 data-aos="fade-up">🗣️ Reviews</h3>
+    <div class="review-section">
+      {% for review in reviews %}
+        <div class="review-card" data-aos="fade-up">
+          <h4>{{ review.author }}</h4>
+          <p>{{ review.content[:500] }}{% if review.content|length > 500 %}...{% endif %}</p>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+</div>
+<script>
+document.getElementById('deepDiveBtn').addEventListener('click', async () => {
+  const button = document.getElementById('deepDiveBtn');
+  const container = document.getElementById('deepDiveContent');
+  button.disabled = true;
+  button.innerText = 'Analysing deeply... 🧠';
+
+  const response = await fetch('/deep_dive', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ title: "{{ movie.title }}", overview: "{{ movie.overview }}" })
+  });
+
+  const data = await response.json();
+  container.innerHTML = `
+    <div class="deep-dive-card" data-aos="fade-in">
+      <p>${data.reply.replace(/\n/g, "<br>")}</p>
+    </div>`;
+  AOS.init();
+});
+</script>
+
+<!-- ✅ AOS Script -->
+<script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+<script>AOS.init({ once: true, duration: 600 });</script>
+
+{% endblock %}

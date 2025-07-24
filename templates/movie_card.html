@@ -1,0 +1,14 @@
+<link rel="stylesheet" href="{{ url_for('static', filename='css/MovieCard.css') }}">
+
+<div class="movie-card">
+  <img src="https://image.tmdb.org/t/p/w300{{ movie.poster_path }}" alt="{{ movie.title }} Poster" />
+  <div class="movie-info">
+    <h2 class="movie-title">{{ movie.title }}</h2>
+    <p class="release-year">📅 {{ movie.release_date[:4] if movie.release_date else "N/A" }}</p>
+    <p class="rating">⭐ {{ movie.vote_average }}</p>
+    
+    {% if movie.trailer %}
+      <a href="{{ movie.trailer }}" target="_blank" class="trailer-button">Watch Trailer</a>
+    {% endif %}
+  </div>
+</div>

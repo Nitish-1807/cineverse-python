@@ -1,0 +1,150 @@
+.shows-page {
+  padding: 20px;
+  color: black;
+  background-color: #f7faff; /* Light background */
+}
+
+/* Search */
+.search-container {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.search-container form input[type="text"] {
+  padding: 10px;
+  width: 50%;
+  max-width: 400px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  background-color: white;
+  color: black;
+}
+
+.search-container form button {
+  padding: 10px 16px;
+  margin-left: 10px;
+  background-color: #3f51b5;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.search-container form button:hover {
+  background-color: #1e80e8;
+}
+
+/* Header + Filter Row */
+.anime-header-filter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 30px 0 15px;
+  flex-wrap: wrap;
+}
+
+.anime-header-filter h2 {
+  margin: 0;
+  font-size: 1.3rem;
+  color: #000;
+}
+
+.anime-filter {
+  padding: 8px 12px;
+  font-size: 14px;
+  border-radius: 5px;
+  background-color: white;
+  color: black;
+  border: 1px solid #ccc;
+  margin-top: 10px;
+}
+
+/* Grid for TV and Anime Cards */
+.shows-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  justify-content: center;
+  margin-bottom: 40px;
+}
+
+/* Individual Card */
+.show-card {
+  width: 140px;
+  cursor: pointer;
+  text-align: center;
+  background-color: white;
+  color: black;
+  border-radius: 12px;
+  padding: 10px;
+  text-decoration: none;
+  border: 1px solid #ddd;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  transition: transform 0.2s ease;
+}
+
+.show-card:hover {
+  transform: scale(1.05);
+}
+
+.show-card img {
+  width: 100%;
+  border-radius: 10px;
+  height: auto;
+  object-fit: cover;
+}
+
+.show-card h4 {
+  font-size: 0.95rem;
+  margin: 6px 0 4px;
+}
+
+.show-card p {
+  font-size: 0.85rem;
+  color: #555;
+  margin: 2px 0;
+}
+
+/* Section headings */
+.shows-page h2 {
+  margin-top: 40px;
+  color: #000;
+  font-size: 1.3rem;
+}
+
+/* Responsive layout */
+@media (max-width: 768px) {
+  .anime-header-filter {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .search-container input[type="text"] {
+    width: 80%;
+    margin-bottom: 10px;
+  }
+
+  .search-container button {
+    width: 50%;
+  }
+
+  .show-card {
+    width: 45%;
+  }
+
+  .anime-filter {
+    width: 100%;
+    margin-top: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .show-card {
+    width: 80%;
+  }
+
+  .anime-header-filter h2 {
+    font-size: 1.1rem;
+  }
+}

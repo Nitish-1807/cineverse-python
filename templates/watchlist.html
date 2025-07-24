@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/Watchlist.css') }}">
+
+<div>
+  <h2 style="text-align: center;">⭐ Your Watchlist</h2>
+  <div id="watchlist-content">
+    {# Watchlist items will be rendered by JavaScript here #}
+  </div>
+</div>
+
+<script>
+  // Re-using the getWatchlist function from movie_card.html
+  function getWatchlist() {
+    const stored = localStorage.getItem("watchlist");
+    return stored ? JSON.parse(stored) : [];
+  }
+
+  function removeFromWatchlist(event, movieId) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    let current = getWatchlist();
+    const updated = current.filter(movie => movie.id !== movieId);
+    localStorage.setItem("watchlist", JSON.stringify(updated));
+    renderWatchlist(); // Re-render the list after removal
+    alert("Removed from Watchlist!");
+  }
+
+  function renderWatchlist() {
+    const watchlist = getWatchlist();
+    const watchlistContentDiv = document.getElementById("watchlist-content");
+    watchlistContentDiv.innerHTML = ""; // Clear existing content
+
+    if (watchlist.length === 0) {
+      watchlistContentDiv.innerHTML = '<p style="text-align: center;">No movies added yet.</p>';
+    } else {
+      const movieGrid = document.createElement("div");
+      movieGrid.className = "movie-grid";
+
+      watchlist.forEach(movie => {
+        const movieCardWrapper = document.createElement("div");
+        movieCardWrapper.className = "movie-card-wrapper"; // A wrapper for card + button
+
+        // Construct movie card HTML
+        const movieCardHtml = `
+          <div class="movie-card">
+            <a href="{{ url_for('movie_detail', movie_id=0) | replace('0', 'MOVIE_ID_PLACEHOLDER') }}" style="text-decoration: none; color: inherit;">
+              <img src="https://image.tmdb.org/t/p/w200${movie.poster_path}" alt="${movie.title}" />
+            </a>
+            <div class="movie-info">
+              <h1>${movie.title}</h1>
+              <p><strong>Year:</strong> ${movie.release_date ? movie.release_date.substring(0, 4) : "N/A"}</p>
+              <p><strong>⭐</strong> ${movie.vote_average ? movie.vote_average.toFixed(1) : "N/A"}</p>
+            </div>
+          </div>
+        `;
+        movieCardWrapper.innerHTML = movieCardHtml;
+
+        // Fix the dynamic URL after innerHTML is set
+        const movieLink = movieCardWrapper.querySelector('a');
+        if (movieLink) {
+          movieLink.href = movieLink.href.replace('MOVIE_ID_PLACEHOLDER', movie.id);
+        }
+
+        const removeButton = document.createElement("button");
+        removeButton.className = "remove-watchlist-btn";
+        removeButton.textContent = "❌ Remove";
+        removeButton.onclick = (e) => removeFromWatchlist(e, movie.id);
+
+        movieCardWrapper.appendChild(removeButton);
+        movieGrid.appendChild(movieCardWrapper);
+      });
+      watchlistContentDiv.appendChild(movieGrid);
+    }
+  }
+
+  // Initial render when the page loads
+  document.addEventListener("DOMContentLoaded", renderWatchlist);
+</script>
+{% endblock %}

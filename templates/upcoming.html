@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/Upcoming.css') }}">
+
+<div class="upcoming-page">
+    <h2>🎞️ Upcoming Movies</h2>
+
+    <div class="filter-container">
+        <label>Language: </label>
+        <form method="GET" action="/upcoming">
+            <select name="language" onchange="this.form.submit()">
+                <option value="" {% if language_filter == "" %}selected{% endif %}>All</option>
+                <option value="en" {% if language_filter == "en" %}selected{% endif %}>English</option>
+                <option value="hi" {% if language_filter == "hi" %}selected{% endif %}>Hindi</option>
+                <option value="te" {% if language_filter == "te" %}selected{% endif %}>Telugu</option>
+                <option value="ta" {% if language_filter == "ta" %}selected{% endif %}>Tamil</option>
+                <option value="ml" {% if language_filter == "ml" %}selected{% endif %}>Malayalam</option>
+                <option value="kn" {% if language_filter == "kn" %}selected{% endif %}>Kannada</option>
+                <option value="ko" {% if language_filter == "ko" %}selected{% endif %}>Korean</option>
+                <option value="ja" {% if language_filter == "ja" %}selected{% endif %}>Japanese</option>
+            </select>
+        </form>
+    </div>
+
+    <div class="upcoming-list">
+        {% for movie in upcoming_movies %}
+            <a href="{{ url_for('movie_detail', movie_id=movie.id) }}" class="upcoming-card">
+                <img src="https://image.tmdb.org/t/p/w200{{ movie.poster_path }}" alt="{{ movie.title }}">
+                <div class="upcoming-info">
+                    <h4>{{ movie.title }}</h4>
+                    <h5>📅 {{ movie.release_date }}</h5>
+                </div>
+            </a>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

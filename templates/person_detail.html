@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/MovieDetail.css') }}">
+
+<div class="movie-detail-container">
+  <div class="movie-top">
+    <img class="poster" src="https://image.tmdb.org/t/p/w300{{ person.profile_path }}" alt="{{ person.name }}">
+    <div class="details">
+      <h1>{{ person.name }}</h1>
+      <p><strong>Born:</strong> {{ person.birthday or "N/A" }}</p>
+      <p><strong>Place of Birth:</strong> {{ person.place_of_birth or "N/A" }}</p>
+
+      {% if person.biography %}
+        <div id="biography" style="margin-top: 15px;">
+          <p><strong>Biography:</strong></p>
+          <p id="bio-short" style="display: block;">
+            {{ person.biography[:800] }}{% if person.biography|length > 800 %}...{% endif %}
+          </p>
+          {% if person.biography|length > 800 %}
+            <p id="bio-full" style="display: none;">{{ person.biography }}</p>
+            <button id="toggle-bio-btn" onclick="toggleBio()">Read More</button>
+          {% endif %}
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+
+  {% if upcoming %}
+    <h2>🚀 Upcoming Projects</h2>
+    <div class="shows-grid">
+      {% for item in upcoming %}
+        <a class="show-card" href="{{ url_for('movie_detail', movie_id=item.id) if item.media_type == 'movie' else url_for('tv_detail', tv_id=item.id) }}">
+          <img src="https://image.tmdb.org/t/p/w200{{ item.poster_path }}" alt="{{ item.title or item.name }}">
+          <h4>{{ item.title or item.name }}</h4>
+          <p>📅 {{ item.release_date or item.first_air_date }}</p>
+        </a>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  {% if known_for %}
+    <h2>🎬 Known For</h2>
+    <div class="shows-grid">
+      {% for item in known_for %}
+        <a class="show-card" href="{{ url_for('movie_detail', movie_id=item.id) if item.media_type == 'movie' else url_for('tv_detail', tv_id=item.id) }}">
+          <img src="https://image.tmdb.org/t/p/w200{{ item.poster_path }}" alt="{{ item.title or item.name }}">
+          <h4>{{ item.title or item.name }}</h4>
+          <p>⭐ {{ "%.1f"|format(item.vote_average or 0) }}</p>
+        </a>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  {% if known_movies %}
+    <h2>🎥 Popular Movies</h2>
+    <div class="shows-grid">
+      {% for item in known_movies %}
+        <a class="show-card" href="{{ url_for('movie_detail', movie_id=item.id) }}">
+          <img src="https://image.tmdb.org/t/p/w200{{ item.poster_path }}" alt="{{ item.title }}">
+          <h4>{{ item.title }}</h4>
+          {% if item.roles %}
+            <p class="known-for-role">{{ item.roles | join(', ') }}</p>
+          {% endif %}
+          <p>⭐ {{ "%.1f"|format(item.vote_average or 0) }}</p>
+        </a>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  {% if known_tv %}
+    <h2>📺 Popular TV Shows</h2>
+    <div class="shows-grid">
+      {% for item in known_tv %}
+        <a class="show-card" href="{{ url_for('tv_detail', tv_id=item.id) }}">
+          <img src="https://image.tmdb.org/t/p/w200{{ item.poster_path }}" alt="{{ item.name }}">
+          <h4>{{ item.name }}</h4>
+          {% if item.roles %}
+            <p class="known-for-role">{{ item.roles | join(', ') }}</p>
+          {% endif %}
+          <p>⭐ {{ "%.1f"|format(item.vote_average or 0) }}</p>
+        </a>
+      {% endfor %}
+    </div>
+  {% endif %}
+  <script>
+  function toggleBio() {
+    const short = document.getElementById("bio-short");
+    const full = document.getElementById("bio-full");
+    const btn = document.getElementById("toggle-bio-btn");
+
+    if (full.style.display === "none") {
+      short.style.display = "none";
+      full.style.display = "block";
+      btn.innerText = "Read Less";
+    } else {
+      short.style.display = "block";
+      full.style.display = "none";
+      btn.innerText = "Read More";
+    }
+  }
+</script>
+
+{% endblock %}

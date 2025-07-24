@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CineVerse</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/Navbar.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/Home.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/MovieCard.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/MovieDetail.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/TvDetail.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/Shows.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/Upcoming.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/Watchlist.css') }}">
+</head>
+<body>
+  {% include "navbar.html" %}
+  <main>
+    <button id="theme-toggle" class="theme-btn">🌙 Toggle Theme</button>
+    {% block content %}{% endblock %}
+  </main>
+  <script>
+  const toggleBtn = document.getElementById("theme-toggle");
+
+  function updateThemeIcon() {
+    toggleBtn.textContent = document.body.classList.contains("dark-mode") ? "☀️ Light Mode" : "🌙 Dark Mode";
+  }
+
+  toggleBtn.addEventListener("click", () => {
+    document.body.classList.toggle("dark-mode");
+    updateThemeIcon();
+    localStorage.setItem("theme", document.body.classList.contains("dark-mode") ? "dark" : "light");
+  });
+
+  window.addEventListener("DOMContentLoaded", () => {
+    if (localStorage.getItem("theme") === "dark") {
+      document.body.classList.add("dark-mode");
+    }
+    updateThemeIcon();
+  });
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,180 @@
+{% extends "base.html" %}
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/Home.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/MovieCard.css') }}">
+
+<!-- 🔍 Search + Filters -->
+<br>
+<div class="search-container">
+  <form method="GET" action="/">
+    <input type="text" name="query" placeholder="Search a movie or person" value="{{ request.args.get('query', '') }}">
+    <button type="submit">Search</button>
+  </form>
+</div>
+
+<div class="filter-container">
+  <form method="GET" action="/">
+    <input type="hidden" name="query" value="{{ request.args.get('query', '') }}"/>
+
+    <label>Filter by Rating:</label>
+    <select name="min_rating" onchange="this.form.submit()">
+      <option value="0" {% if min_rating == 0 %}selected{% endif %}>All</option>
+      <option value="6" {% if min_rating == 6 %}selected{% endif %}>6 and above</option>
+      <option value="7" {% if min_rating == 7 %}selected{% endif %}>7 and above</option>
+      <option value="8" {% if min_rating == 8 %}selected{% endif %}>8 and above</option>
+    </select>
+
+    <label style="margin-left: 20px;">Filter by Language:</label>
+    <select name="language" onchange="this.form.submit()">
+      <option value="" {% if language_filter == "" %}selected{% endif %}>All</option>
+      <option value="te" {% if language_filter == "te" %}selected{% endif %}>Telugu</option>
+      <option value="ta" {% if language_filter == "ta" %}selected{% endif %}>Tamil</option>
+      <option value="hi" {% if language_filter == "hi" %}selected{% endif %}>Hindi</option>
+      <option value="en" {% if language_filter == "en" %}selected{% endif %}>English</option>
+    </select>
+  </form>
+</div>
+
+{% if has_searched %}
+  <button onclick="window.location.href='/'" style="margin: 10px 15px;">⬅️ Back to Home</button>
+  <h2 style="text-align: center;">🔍 Search Results</h2>
+  <div class="movie-grid">
+    {% for item in results %}
+      {% if item.media_type == 'movie' %}
+        <a href="{{ url_for('movie_detail', movie_id=item.id) }}" class="movie-card-link">
+          {% set movie = item %}
+          {% include 'movie_card.html' %}
+        </a>
+      {% elif item.media_type == 'person' %}
+        <a href="{{ url_for('person_detail', person_id=item.id) }}" class="movie-card-link">
+          <div class="movie-card">
+            <img src="https://image.tmdb.org/t/p/w300{{ item.profile_path }}" alt="{{ item.name }}">
+            <div class="movie-info">
+              <h2 class="movie-title">{{ item.name }}</h2>
+              <p class="release-year">👤 Person</p>
+            </div>
+          </div>
+        </a>
+      {% endif %}
+    {% endfor %}
+  </div>
+{% else %}
+
+<!-- ✅ Carousel + Quick Picks -->
+<div class="carousel-section">
+  <!-- Carousel -->
+  <div class="carousel-left">
+    <div class="carousel-container">
+      <div class="carousel-wrapper" id="carousel-wrapper">
+        {% for movie in carousel_movies %}
+          {% set year = movie.release_date[:4] | int if movie.release_date else 0 %}
+          {% if movie.vote_average >= 6 or year >= 2023 %}
+            <div class="carousel-slide {% if loop.index0 == 0 %}active{% endif %}" onclick="window.location.href='{{ url_for('movie_detail', movie_id=movie.id) }}'">
+              <img src="https://image.tmdb.org/t/p/original{{ movie.backdrop_path or movie.poster_path }}" alt="{{ movie.title }}">
+              <div class="carousel-title">{{ movie.title }}{% if movie.release_date %} ({{ movie.release_date[:4] }}){% endif %}</div>
+            </div>
+          {% endif %}
+        {% endfor %}
+        <div class="carousel-arrow left" onclick="prevSlide()">❮</div>
+        <div class="carousel-arrow right" onclick="nextSlide()">❯</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Picks -->
+  <div class="carousel-right">
+    <h3>⭐ Top Rated</h3>
+    <div class="quick-pick-list">
+      {% for movie in top_rated %}
+        <div class="quick-movie" onclick="window.location.href='{{ url_for('movie_detail', movie_id=movie.id) }}'" style="cursor: pointer;">
+          <img src="https://image.tmdb.org/t/p/w92{{ movie.poster_path }}" alt="{{ movie.title }}">
+          <div class="quick-info">
+            <p class="movie-title">{{ movie.title }}</p>
+            <p class="movie-rating">⭐ {{ movie.vote_average }}</p>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<!-- 🔥 Trending Movies -->
+<h2 style="text-align: center;">🔥 Trending Movies This Week</h2>
+<div class="scrollable-row-wrapper">
+  <button class="scroll-button left" onclick="scrollLeft('trending-row')">❮</button>
+  <div class="scrollable-row" id="trending-row">
+    {% for movie in trending %}
+      {% if movie.vote_average >= min_rating and (language_filter == '' or movie.original_language == language_filter) %}
+        <a href="{{ url_for('movie_detail', movie_id=movie.id) }}" class="movie-card-link">
+          {% include 'movie_card.html' %}
+        </a>
+      {% endif %}
+    {% endfor %}
+  </div>
+  <button class="scroll-button right" onclick="scrollRight('trending-row')">❯</button>
+</div>
+
+<!-- 🎥 Telugu Movies -->
+<h2 style="text-align: center;">🎥 Trending Telugu Movies</h2>
+<div class="scrollable-row-wrapper">
+  <button class="scroll-button left" onclick="scrollLeft('telugu-row')">❮</button>
+  <div class="scrollable-row" id="telugu-row">
+    {% for movie in telugu %}
+      {% if movie.vote_average >= min_rating and (language_filter == '' or movie.original_language == 'te') %}
+        <a href="{{ url_for('movie_detail', movie_id=movie.id) }}" class="movie-card-link">
+          {% include 'movie_card.html' %}
+        </a>
+      {% endif %}
+    {% endfor %}
+  </div>
+  <button class="scroll-button right" onclick="scrollRight('telugu-row')">❯</button>
+</div>
+
+<!-- 🎬 Tamil Movies -->
+<h2 style="text-align: center;">🎬 Trending Tamil Movies</h2>
+<div class="scrollable-row-wrapper">
+  <button class="scroll-button left" onclick="scrollLeft('tamil-row')">❮</button>
+  <div class="scrollable-row" id="tamil-row">
+    {% for movie in tamil %}
+      {% if movie.vote_average >= min_rating and (language_filter == '' or movie.original_language == 'ta') %}
+        <a href="{{ url_for('movie_detail', movie_id=movie.id) }}" class="movie-card-link">
+          {% include 'movie_card.html' %}
+        </a>
+      {% endif %}
+    {% endfor %}
+  </div>
+  <button class="scroll-button right" onclick="scrollRight('tamil-row')">❯</button>
+</div>
+{% endif %}
+
+<!-- ✅ Carousel and Scroll Scripts -->
+<script>
+  let currentIndex = 0;
+  const slides = document.querySelectorAll(".carousel-slide");
+
+  function showSlide(index) {
+    slides.forEach((slide, i) => {
+      slide.classList.toggle("active", i === index);
+    });
+  }
+
+  function nextSlide() {
+    currentIndex = (currentIndex + 1) % slides.length;
+    showSlide(currentIndex);
+  }
+
+  function prevSlide() {
+    currentIndex = (currentIndex - 1 + slides.length) % slides.length;
+    showSlide(currentIndex);
+  }
+
+  setInterval(nextSlide, 4000);
+
+  function scrollLeft(id) {
+    document.getElementById(id).scrollLeft -= 300;
+  }
+  function scrollRight(id) {
+    document.getElementById(id).scrollLeft += 300;
+  }
+</script>
+{% endblock %}

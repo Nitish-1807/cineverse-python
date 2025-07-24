@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/TvDetail.css') }}">
+
+<div class="tv-detail-page">
+  <!-- 📺 Banner Section -->
+  <div class="tv-banner">
+    <img src="https://image.tmdb.org/t/p/original{{ tv_show.backdrop_path }}" alt="{{ tv_show.name }}">
+    <div class="tv-title-overlay">
+      <h2>{{ tv_show.name }}</h2>
+      <p>{{ tv_show.first_air_date[:4] }} • {{ language_map.get(tv_show.original_language, tv_show.original_language.upper()) }}</p>
+      <p>⭐ {{ "%.1f"|format(tv_show.vote_average or 0) }}</p>
+      <p>📺 Total Episodes: {{ tv_show.number_of_episodes }} ({{ tv_show.number_of_seasons }} Seasons)</p>
+      <p>🗓️ First Aired: {{ tv_show.first_air_date }}</p>
+      <p>{{ tv_show.overview }}</p>
+
+      {% if tv_show.production_companies %}
+        <h4>Production Companies:</h4>
+        <div class="company-list">
+          {% for company in tv_show.production_companies %}
+            <span class="company-name">{{ company.name }}</span>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+    {% if providers %}
+      <div class="watch-providers">
+        <h3>Available on:</h3>
+        <div class="provider-list">
+          {% for provider in providers %}
+            <a href="{{ provider_link }}" target="_blank" class="provider-item" title="{{ provider.provider_name }}">
+              <div class="provider-logo">
+                <img src="https://image.tmdb.org/t/p/original{{ provider.logo_path }}" alt="{{ provider.provider_name }}">
+              </div>
+              <p class="provider-name-text">{{ provider.provider_name }}</p>
+            </a>
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
+
+
+      <a href="https://www.youtube.com/results?search_query={{ tv_show.name | urlencode }}+trailer" target="_blank">
+        <button class="trailer-button">🎬 Watch Trailer</button>
+      </a>
+    </div>
+  </div>
+
+  <!-- 👨‍💼 CREW -->
+  {% if crew %}
+    <h3 class="section-title">🎬 Key Crew</h3>
+    <div class="cast-list">
+      {% for member in crew %}
+        <div class="cast-card" onclick="location.href='/person/{{ member.id }}'">
+          <img src="{{ 'https://image.tmdb.org/t/p/w185' + member.profile_path if member.profile_path else 'https://via.placeholder.com/100x150?text=No+Image' }}" alt="{{ member.name }}">
+          <p class="cast-name">{{ member.name }}</p>
+          <p class="cast-character">{{ member.job }}</p>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <!-- 👥 CAST -->
+  {% if cast %}
+    <h3 class="section-title">🎭 Cast</h3>
+    <div class="cast-list">
+      {% for actor in cast %}
+        <div class="cast-card" onclick="location.href='/person/{{ actor.id }}'">
+          <img src="{{ 'https://image.tmdb.org/t/p/w185' + actor.profile_path if actor.profile_path else 'https://via.placeholder.com/100x150?text=No+Image' }}" alt="{{ actor.name }}">
+          <p class="cast-name">{{ actor.name }}</p>
+          <p class="cast-character">as {{ actor.character }}</p>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

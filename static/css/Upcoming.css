@@ -1,0 +1,39 @@
+.upcoming-page {
+  padding: 20px;
+}
+
+.upcoming-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+}
+
+.upcoming-card {
+  width: 160px;
+  background: white;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.upcoming-card:hover {
+  transform: scale(1.05);
+}
+
+.upcoming-card img {
+  width: 100%;
+  height: auto;
+}
+
+.upcoming-info {
+  padding: 10px;
+  text-align: center;
+}
+
+.filter-container {
+  text-align: center;
+  margin: 20px 0;
+}

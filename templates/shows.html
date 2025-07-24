@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/Home.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/MovieCard.css') }}">
+
+<!-- 🔍 Search + Filters -->
+<br>
+<div class="search-container">
+  <form method="GET" action="/shows">
+    <input type="text" name="search_query" placeholder="Search TV Shows or Anime" value="{{ search_query }}">
+    <select name="language">
+      <option value="">All Languages</option>
+      {% for code, name in language_map.items() %}
+        <option value="{{ code }}" {% if code == language %}selected{% endif %}>{{ name }}</option>
+      {% endfor %}
+    </select>
+    <button type="submit">Search</button>
+  </form>
+</div>
+
+<!-- 📱 Mobile Jump Links -->
+<div class="mobile-jump">
+  <a href="#tv-section">📺 TV Shows</a> | 
+  <a href="#anime-section">🎌 Anime</a>
+</div>
+
+<!-- 📺 TV Shows -->
+<h2 id="tv-section" style="text-align:center;">📺 Popular TV Shows</h2>
+<div class="scrollable-row-wrapper">
+  <button class="scroll-button left" onclick="scrollLeft('tv-row')">❮</button>
+  <div class="scrollable-row" id="tv-row">
+    {% for show in tv_shows %}
+      <a href="{{ url_for('tv_detail', tv_id=show.id) }}" class="movie-card-link">
+        {% set movie = show %}
+        {% include 'movie_card.html' %}
+      </a>
+    {% endfor %}
+  </div>
+  <button class="scroll-button right" onclick="scrollRight('tv-row')">❯</button>
+</div>
+
+<!-- 🎌 Anime -->
+<h2 id="anime-section" style="text-align:center;">🎌 Fan Favorite Anime</h2>
+<div class="scrollable-row-wrapper">
+  <button class="scroll-button left" onclick="scrollLeft('anime-row')">❮</button>
+  <div class="scrollable-row" id="anime-row">
+    {% for anime in anime_shows %}
+      <a href="{{ url_for('tv_detail', tv_id=anime.id) }}" class="movie-card-link">
+        {% set movie = anime %}
+        {% include 'movie_card.html' %}
+      </a>
+    {% endfor %}
+  </div>
+  <button class="scroll-button right" onclick="scrollRight('anime-row')">❯</button>
+</div>
+
+<!-- JS scroll functions -->
+<script>
+  function scrollLeft(id) {
+    document.getElementById(id).scrollLeft -= 300;
+  }
+  function scrollRight(id) {
+    document.getElementById(id).scrollLeft += 300;
+  }
+</script>
+{% endblock %}

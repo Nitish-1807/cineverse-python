@@ -1,0 +1,25 @@
+<link rel="stylesheet" href="{{ url_for('static', filename='css/Navbar.css') }}">
+<nav class="navbar">
+  <h2 class="logo">CineVerse</h2>
+
+  <div class="hamburger" onclick="toggleMenu()">
+    <span class="bar"></span>
+    <span class="bar"></span>
+    <span class="bar"></span>
+  </div>
+
+  <div class="nav-links" id="navLinks">
+    <a href="/">Home</a>
+    <a href="/shows">TV Shows & Anime</a>
+    <a href="/upcoming">Upcoming</a>
+    <a href="/watchlist">Watchlist</a>
+    <a href="/chatbot">Chatbot</a> 
+  </div>
+</nav>
+
+<script>
+  function toggleMenu() {
+    const navLinks = document.getElementById("navLinks");
+    navLinks.classList.toggle("open");
+  }
+</script>

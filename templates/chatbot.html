@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/chatbot.css') }}">
+
+<div id="chat-wrapper">
+    <header>CineBot 🎬</header>
+    <div id="chat-container">
+        <div id="chat-history"></div>
+
+        <!-- Chat input form -->
+        <form id="chat-form">
+            <input type="text" id="user-input" name="user_input" placeholder="Ask me anything about movies..." autocomplete="off" />
+            <button type="submit" title="Send">➤</button>
+        </form>
+
+        <!-- Clear chat button -->
+        <form action="/clear_chat" method="get" id="clear-chat-form">
+            <button type="submit" title="Clear chat">🗑️ Clear Chat</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    const form = document.getElementById("chat-form");
+    const input = document.getElementById("user-input");
+    const history = document.getElementById("chat-history");
+
+    function typeText(text, sender, replaceNode = null) {
+        const msg = replaceNode || document.createElement("div");
+        msg.className = `message ${sender}`;
+        if (!replaceNode) history.appendChild(msg);
+
+        let i = 0;
+        function typeChar() {
+            if (i < text.length) {
+                msg.textContent += text[i++];
+                history.scrollTop = history.scrollHeight;
+                setTimeout(typeChar, 15);
+            }
+        }
+        typeChar();
+    }
+
+    function appendMessage(text, sender) {
+        const msg = document.createElement("div");
+        msg.className = `message ${sender}`;
+        msg.textContent = text;
+        history.appendChild(msg);
+        history.scrollTop = history.scrollHeight;
+        return msg;
+    }
+
+    form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const userMsg = input.value.trim();
+        if (!userMsg) return;
+        appendMessage(userMsg, "user");
+        input.value = "";
+
+        // Add loading message and spinner
+        const loadingNode = document.createElement("div");
+        loadingNode.className = "message bot";
+        loadingNode.innerHTML = `<span class="dots"><span>.</span><span>.</span><span>.</span></span>`;
+        history.appendChild(loadingNode);
+        history.scrollTop = history.scrollHeight;
+
+        try {
+            const res = await fetch("/chatbot", {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: new URLSearchParams({ user_input: userMsg })
+            });
+            const data = await res.json();
+            loadingNode.textContent = "";  // Clear loader
+            typeText(data.reply, "bot", loadingNode);
+        } catch (err) {
+            loadingNode.textContent = "⚠️ Error getting response.";
+        }
+    });
+</script>
+{% endblock %}
